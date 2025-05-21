@@ -1,0 +1,6 @@
+@SylabusAPI_HostAddress = http://localhost:5036
+
+GET {{SylabusAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
