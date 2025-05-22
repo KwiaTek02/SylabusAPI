@@ -1,9 +1,10 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-//using Scalar.AspNetCore;
+using Scalar.AspNetCore;
 using SylabusAPI.Data;
 using SylabusAPI.Mapping;
 using SylabusAPI.Services.Implementations;
@@ -95,6 +96,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPrzedmiotService, PrzedmiotService>();
 builder.Services.AddScoped<ISylabusService, SylabusService>();
 builder.Services.AddScoped<ISiatkaService, SiatkaService>();
+builder.Services.AddScoped<IHistoriaService, HistoriaService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -139,6 +141,8 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -150,14 +154,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/openapi/v1.json", "OpenAPI v1");
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "SylabusAPI v1");
+        //options.SwaggerEndpoint("/swagger/v1/swagger.json", "SylabusAPI v1");
         options.DisplayRequestDuration();
     });
-    //app.UseReDoc(options =>
-    //{
-    //    options.SpecUrl("/openapi/v1.json");
-    //});
-    //app.MapScalarApiReference();
+    app.UseReDoc(options =>
+    {
+        options.SpecUrl("/openapi/v1.json");
+    });
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();

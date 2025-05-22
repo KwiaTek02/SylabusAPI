@@ -45,7 +45,7 @@ namespace SylabusAPI.Controllers
         // Aktualizacja istniejącego sylabusu
         [Authorize(Roles = "wykladowca,admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] SylabusDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateSylabusRequest req)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -54,8 +54,15 @@ namespace SylabusAPI.Controllers
             if (existing is null)
                 return NotFound();
 
-            await _svc.UpdateAsync(id, dto);
-            return NoContent();
+            try
+            {
+                await _svc.UpdateAsync(id, req);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
         }
 
         // Usunięcie sylabusu
@@ -63,12 +70,23 @@ namespace SylabusAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
+            // 1) Sprawdź, czy w ogóle istnieje
             var existing = await _svc.GetByIdAsync(id);
             if (existing is null)
                 return NotFound();
 
-            await _svc.DeleteAsync(id);
-            return NoContent();
+            try
+            {
+                // 2) Spróbuj usunąć
+                await _svc.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // 3) Jeżeli serwis rzuci, że nie jestes koordynatorem, zwróć 403
+                return Forbid();
+            }
         }
+
     }
 }
