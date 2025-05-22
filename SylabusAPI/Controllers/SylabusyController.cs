@@ -11,6 +11,8 @@ namespace SylabusAPI.Controllers
     {
         private readonly ISylabusService _svc;
 
+        //xd
+
         public SylabusyController(ISylabusService svc)
             => _svc = svc;
 
